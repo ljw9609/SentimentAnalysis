@@ -1,4 +1,8 @@
-from seg.seg import *
+from seg import Seg
+from sentiment import Sentiment
+import os
+
+root_path = os.path.abspath(os.path.dirname(__file__))
 
 
 class SimpleNLP(object):
@@ -6,26 +10,32 @@ class SimpleNLP(object):
         self.doc = doc
         self.datalist = datalist
         self.stopword = []
+        self.seg = Seg()
+        self.sentiment = Sentiment()
         if stopword:
-            self.stopword = Seg().stopwordslist()
+            self.stopword = self.seg.stopwordslist()
 
     def seg_datalist(self):
-        return Seg().seg_from_datalist(self.datalist)
+        return self.seg.seg_from_datalist(self.datalist)
 
     def seg_doc(self):
-        return Seg().seg_from_doc(self.doc)
+        return self.seg.seg_from_doc(self.doc)
+
+    def sentiment_analysis_doc(self):
+        self.sentiment.load_model(root_path+'/data/naivebayes_model1')
+        return self.sentiment.predict_sentence(self.doc)
 
 
 def main():
-    doc = '''自然语言处理:是人工智能和语言学领域的分支学科。
-             在这此领域中探讨如何处理及运用自然语言；自然语言认知则是指让电脑“懂”人类的语言。 
-             自然语言生成系统把计算机数据转化为自然语言。自然语言理解系统把自然语言转化为计算机程序更易于处理的形式。'''
+    doc = '''杰森我爱你！加油你是最棒的！'''
     datalist = Seg().get_data_from_mysql(100)
-    npl = SimpleNLP(doc, datalist, True)
+    npl = SimpleNLP(doc, True)
     res = npl.seg_doc()
-    res2 = npl.seg_datalist()
+    # res2 = npl.seg_datalist()
     print(res)
-    print(res2)
+    # print(res2)
+    sent = npl.sentiment_analysis_doc()
+    print(sent)
 
 
 if __name__ == '__main__':

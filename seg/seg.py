@@ -4,7 +4,8 @@ import pymysql
 
 
 class Seg(object):
-    stop_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stopwords.txt')
+    # stop_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stopwords.txt')
+    stop_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) + '/data/stopwords.txt'
     db = pymysql.connect(host='localhost', user='root', password='123456', db='weiboSpider', port=3306, charset='utf8')
 
     def __init__(self):
