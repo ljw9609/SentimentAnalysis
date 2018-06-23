@@ -13,6 +13,7 @@ class NaiveBayes(object):
         self.total = 0
 
     def train_model(self, data):
+        print("------ Naive Bayes Classifier is training ------")
         for d in data:
             label = d[0]
             doc = d[1]
@@ -23,8 +24,10 @@ class NaiveBayes(object):
                 self.counter[label] += 1
                 self.corpus[label][word] += 1
         self.total = sum(self.counter.values())
+        print("------ Naive Bayes Classifier training over ------")
 
     def save_model(self, filename, iszip=True):
+        print("------ Naive Bayes Classifier is saving model ------")
         d = {}
         d['counter'] = self.counter
         d['corpus'] = self.corpus
@@ -36,8 +39,10 @@ class NaiveBayes(object):
             f = gzip.open(filename, 'wb')
             f.write(pickle.dumps(d))
             f.close()
+        print("------ Naive Bayes Classifier saving model over ------")
 
     def load_model(self, filename, iszip=True):
+        print("------ Naive Bayes Classifier is loading model ------")
         if not iszip:
             d = pickle.load(open(filename, 'rb'))
         else:
@@ -51,6 +56,7 @@ class NaiveBayes(object):
         self.counter = d['counter']
         self.corpus = d['corpus']
         self.total = d['total']
+        print("------ Naive Bayes Classifier model loading over ------")
 
     def predict(self, sentence):
         tmp = {}
@@ -108,7 +114,7 @@ def main():
     print(nb.counter)
     print(nb.corpus)
     print(nb.predict(['好', '开心', '支持']))
-    nb.save_model('naivebayes_model1', True)
+    # nb.save_model('naivebayes_model1', True)
 
 
 if __name__ == '__main__':
