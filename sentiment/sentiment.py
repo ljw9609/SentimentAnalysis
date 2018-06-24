@@ -22,12 +22,24 @@ class Sentiment(object):
     def load_model(self, filename):
         self.nb.load_model(filename)
 
-    def predict_sentence(self, sentence):
+    def predict_sentence_doc(self, sentence):
         seged_sentence = self.seg.seg_from_doc(sentence)
         res, prob = self.nb.predict(seged_sentence[0])
         if res == 'pos':
             return prob
         return 1 - prob
+
+    def predict_datalist(self, datalist):
+        seged_datalist = self.seg.seg_from_datalist(datalist)
+
+        result = []
+        for data in seged_datalist:
+            res, prob = self.nb.predict(data)
+            if res == 'pos':
+                result.append(prob)
+            else:
+                result.append(1 - prob)
+        return result
 
 
 def main():

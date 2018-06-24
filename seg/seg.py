@@ -1,12 +1,14 @@
 import os
 import jieba
 import pymysql
+import re
 
 
 class Seg(object):
     # stop_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stopwords.txt')
     stop_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) + '/data/stopwords.txt'
-    db = pymysql.connect(host='localhost', user='root', password='123456', db='weiboSpider', port=3306, charset='utf8')
+    # db = pymysql.connect(host='localhost', user='root', password='123456', db='weiboSpider', port=3306, charset='utf8')
+    db = pymysql.connect(host='47.97.98.201', user='ljw9609', password='ljw9609', db='weibo', port=3306, charset='utf8')
 
     def __init__(self):
         self.seg_result = []
@@ -19,13 +21,41 @@ class Seg(object):
         commentlist = []
         with self.db:
             cur = self.db.cursor()
-            cur.execute("select text from comments3 where id < '%d'" % qty)
+            # cur.execute("select ctt from comments where id < '%d'" % qty)
+            sql = "SELECT ctt FROM comments LIMIT %s OFFSET 0" % qty
+            cur.execute(sql)
             rows = cur.fetchall()
+        reg = u"[\u4e00-\u9fa5]+"
         for row in rows:
-            row = list(row)
-            if row not in commentlist:
-                commentlist.append(row[0])
+            '''
+            print(row[0])
+            if row[0] == "":
+                print("none")
+                continue
+            elif "@" in row[0]:
+                print("@")
+                continue
+            '''
+            res = re.findall(reg, row[0])
+            if not res:
+                continue
+            # row = list(row)
+            if res not in commentlist:
+                commentlist.append(res[0])
         return commentlist
+
+    def get_keyword_from_datalist(self, datalist):
+        keyword = {}
+
+        stopwords = self.stopwordslist()
+        for sentence in datalist:
+            seged_sentence = self.seg_sentence(sentence)
+            words = list(set(seged_sentence) - set(stopwords))
+            for word in words:
+                keyword[word] = keyword.get(word, 0) + 1
+
+        keyword = sorted(keyword.items(), key=lambda x: x[1], reverse=True)
+        return keyword
 
     def seg_from_datalist(self, datalist):
         stopwords = self.stopwordslist()
@@ -33,7 +63,7 @@ class Seg(object):
         res = []
 
         for sentence in datalist:
-            seged_sentence = seg_sentence(sentence)
+            seged_sentence = self.seg_sentence(sentence)
             res.append(list(set(seged_sentence) - set(stopwords)))
         return res
 
@@ -44,7 +74,7 @@ class Seg(object):
         s = doc.split('\n')
 
         for sentence in s:
-            seged_sentence = seg_sentence(sentence)
+            seged_sentence = self.seg_sentence(sentence)
             res.append(list(set(seged_sentence) - set(stopwords)))
         return res
 
@@ -53,10 +83,11 @@ class Seg(object):
         self.seg_result = self.seg_from_datalist(datalist)
         return self.seg_result
 
+    @staticmethod
+    def seg_sentence(sentence):
+        sentence_seged = jieba.cut(sentence.strip())
+        return sentence_seged
 
-def seg_sentence(sentence):
-    sentence_seged = jieba.cut(sentence.strip())
-    return sentence_seged
 
 
 '''
@@ -105,8 +136,8 @@ def main():
     doc = '''自然语言处理: 是人工智能和语言学领域的分支学科。
             在这此领域中探讨如何处理及运用自然语言；自然语言认知则是指让电脑“懂”人类的语言。 
             自然语言生成系统把计算机数据转化为自然语言。自然语言理解系统把自然语言转化为计算机程序更易于处理的形式。'''
-    res = seg.seg_from_doc(doc)
-    #res = seg.seg_from_mysql(20)
+    # res = seg.seg_from_doc(doc)
+    res = seg.seg_from_mysql(20000)
     print(res)
 
 

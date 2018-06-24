@@ -99,6 +99,7 @@ def main():
     # nb.load_model('model1', True)
 
     root_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    '''
     pos = open(root_path+'/data/pos.txt', 'r', encoding='utf-8').read()
     neg = open(root_path+'/data/neg.txt', 'r', encoding='utf-8').read()
     seg_pos = Seg().seg_from_doc(pos)
@@ -108,13 +109,32 @@ def main():
         train_data.append(('pos', k))
     for j in seg_neg:
         train_data.append(('neg', j))
+    '''
+    nb.load_model(root_path+'/data/naivebayes_model2')
+    datalist = Seg().get_data_from_mysql(20000)
+    seged_datalist = Seg().seg_from_datalist(datalist)
 
+    train_data = []
+
+    for data in seged_datalist:
+        res, prob = nb.predict(data)
+        if res == 'pos':
+            train_data.append(('pos', data))
+        else:
+            train_data.append(('neg', data))
+
+    new_nb = NaiveBayes()
+    new_nb.train_model(train_data)
+    print(new_nb.predict(['好', '开心', '支持']))
+    new_nb.save_model(root_path+'/data/naivebayes_model3', True)
+    '''
     nb.train_model(train_data)
     print(nb.total)
     print(nb.counter)
     print(nb.corpus)
     print(nb.predict(['好', '开心', '支持']))
     # nb.save_model('naivebayes_model1', True)
+    '''
 
 
 if __name__ == '__main__':
