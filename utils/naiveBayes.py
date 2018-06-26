@@ -4,13 +4,16 @@ import os
 from math import exp, log
 from collections import defaultdict
 from seg.seg import Seg
+from utils.feature_extraction import FeatureExtraction
+import time
 
 
 class NaiveBayes(object):
-    def __init__(self):
+    def __init__(self, best_words):
         self.corpus = {}
         self.counter = {}
         self.total = 0
+        self.best_words = best_words
 
     def train_model(self, data):
         print("------ Naive Bayes Classifier is training ------")
@@ -21,8 +24,9 @@ class NaiveBayes(object):
                 self.corpus[label] = defaultdict(int)
                 self.counter[label] = 0
             for word in doc:
-                self.counter[label] += 1
-                self.corpus[label][word] += 1
+                if self.best_words is None or word in self.best_words:
+                    self.counter[label] += 1
+                    self.corpus[label][word] += 1
         self.total = sum(self.counter.values())
         print("------ Naive Bayes Classifier training over ------")
 
@@ -32,6 +36,7 @@ class NaiveBayes(object):
         d['counter'] = self.counter
         d['corpus'] = self.corpus
         d['total'] = self.total
+        d['best_words'] = self.best_words
 
         if not iszip:
             pickle.dump(d, open(filename, 'wb'), True)
@@ -56,6 +61,7 @@ class NaiveBayes(object):
         self.counter = d['counter']
         self.corpus = d['corpus']
         self.total = d['total']
+        self.best_words = d['best_words']
         print("------ Naive Bayes Classifier model loading over ------")
 
     def predict(self, sentence):
@@ -87,7 +93,8 @@ class NaiveBayes(object):
 
 
 def main():
-    nb = NaiveBayes()
+    start_time = time.time()
+    nb = NaiveBayes(None)
     data = [('neg', ['不', '喜欢', '关晓彤', '吐', '真', '讨厌']),
             ('pos', ['好', '支持', '开心']),
             ('pos', ['放', '干净', '点', '嘴巴', '个人观点']),
@@ -110,23 +117,32 @@ def main():
     for j in seg_neg:
         train_data.append(('neg', j))
     '''
-    nb.load_model(root_path+'/data/naivebayes_model2')
-    datalist = Seg().get_data_from_mysql(20000)
+    nb.load_model(root_path+'/data/naivebayes_model20000v3')
+    datalist = Seg().get_data_from_mysql(30000, 0)
     seged_datalist = Seg().seg_from_datalist(datalist)
 
     train_data = []
+    doc_list = []
+    doc_labels = []
 
     for data in seged_datalist:
         res, prob = nb.predict(data)
         if res == 'pos':
+            doc_list.append(data)
+            doc_labels.append('pos')
             train_data.append(('pos', data))
         else:
+            doc_list.append(data)
+            doc_labels.append('neg')
             train_data.append(('neg', data))
+    print(train_data)
+    fe = FeatureExtraction(doc_list, doc_labels)
+    best_words = fe.best_words(5000, False)
 
-    new_nb = NaiveBayes()
+    new_nb = NaiveBayes(best_words)
     new_nb.train_model(train_data)
     print(new_nb.predict(['好', '开心', '支持']))
-    new_nb.save_model(root_path+'/data/naivebayes_model3', True)
+    new_nb.save_model(root_path+'/data/naivebayes_model30000v3', True)
     '''
     nb.train_model(train_data)
     print(nb.total)
@@ -135,6 +151,8 @@ def main():
     print(nb.predict(['好', '开心', '支持']))
     # nb.save_model('naivebayes_model1', True)
     '''
+    end_time = time.time()
+    print(end_time - start_time)
 
 
 if __name__ == '__main__':

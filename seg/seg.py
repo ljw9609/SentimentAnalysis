@@ -2,6 +2,12 @@ import os
 import jieba
 import pymysql
 import re
+from PIL import Image
+import numpy as np
+from scipy.misc import imread
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+import matplotlib.pyplot as plt
+root_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Seg(object):
@@ -17,12 +23,12 @@ class Seg(object):
         stopwords = [line.strip() for line in open(self.stop_path, 'r', encoding='utf-8').readlines()]
         return stopwords
 
-    def get_data_from_mysql(self, qty):
+    def get_data_from_mysql(self, qty, offset):
         commentlist = []
         with self.db:
             cur = self.db.cursor()
             # cur.execute("select ctt from comments where id < '%d'" % qty)
-            sql = "SELECT ctt FROM comments LIMIT %s OFFSET 0" % qty
+            sql = "SELECT ctt FROM comments LIMIT %s OFFSET %s" % (qty, offset)
             cur.execute(sql)
             rows = cur.fetchall()
         reg = u"[\u4e00-\u9fa5]+"
@@ -137,8 +143,22 @@ def main():
             在这此领域中探讨如何处理及运用自然语言；自然语言认知则是指让电脑“懂”人类的语言。 
             自然语言生成系统把计算机数据转化为自然语言。自然语言理解系统把自然语言转化为计算机程序更易于处理的形式。'''
     # res = seg.seg_from_doc(doc)
-    res = seg.seg_from_mysql(20000)
-    print(res)
+    datalist = seg.get_data_from_mysql(1000, 0)
+    keywords = dict(seg.get_keyword_from_datalist(datalist))
+
+    font_path = root_path + '/data/simfang.ttf'
+    bg_path = root_path + '/data/bg.jpg'
+    #back_color = np.array(Image.open(bg_path))
+    back_color = imread(bg_path)
+    image_colors = ImageColorGenerator(back_color)
+    wordcloud = WordCloud(font_path=font_path, background_color="white", mask=back_color,
+                          max_words=2000, max_font_size=100, random_state=48, width=1000, height=800, margin=2)
+    wordcloud.generate_from_frequencies(keywords)
+    plt.figure()
+    plt.imshow(wordcloud.recolor(color_func=image_colors))
+    plt.axis("off")
+    plt.show()
+    wordcloud.to_file(root_path + '/data/pic2.png')
 
 
 if __name__ == '__main__':

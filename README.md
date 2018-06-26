@@ -25,10 +25,6 @@ print('情感分析: ' + sentiment)
 + 支持向量机（使用了sklearn工具）
 + 特征值提取（使用卡方检验算法）
 
-## 未完成工作
-+ K-近邻分类算法（K-Nearest-Neighbours Algorithm）
-+ 最大熵模型（Maximum Entropy）
-
 ## 详细说明
 ### (1)特征值提取
 对应文件: feature_extraction.py
