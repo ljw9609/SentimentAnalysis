@@ -2,19 +2,22 @@ from seg import Seg
 from sentiment import Sentiment
 import os
 import numpy as np
-from wordcloud import WordCloud, STOPWORDS
+from scipy.misc import imread
+from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 import time
+from collections import Counter
 root_path = os.path.abspath(os.path.dirname(__file__))
 
 
 class SimpleNLP(object):
-    def __init__(self, doc=None, datalist=None, stopword=False):
+    def __init__(self, method=1, doc=None, datalist=None, stopword=False):
         self.doc = doc
         self.datalist = datalist
         self.stopword = []
         self.seg = Seg()
-        self.sentiment = Sentiment()
+        self.sentiment = Sentiment(method)
+        self.method = method
         if stopword:
             self.stopword = self.seg.stopwordslist()
 
@@ -28,11 +31,17 @@ class SimpleNLP(object):
         return self.seg.get_keyword_from_datalist(self.datalist)
 
     def sentiment_analysis_doc(self):
-        self.sentiment.load_model(root_path+'/data/naivebayes_model1')
+        if self.method == 1:
+            self.sentiment.load_model(root_path+'/data/naivebayes_model30000v3')
+        elif self.method == 2:
+            self.sentiment.load_model(root_path+'/data/svmmodel10000v4')
         return self.sentiment.predict_sentence_doc(self.doc)
 
     def sentiment_analysis_datalist(self):
-        self.sentiment.load_model(root_path+'/data/naivebayes_model3')
+        if self.method == 1:
+            self.sentiment.load_model(root_path+'/data/naivebayes_model30000v3')
+        elif self.method == 2:
+            self.sentiment.load_model(root_path+'/data/svmmodel10000v4')
         return self.sentiment.predict_datalist(self.datalist)
 
 
@@ -49,36 +58,47 @@ def draw_hist(myList, Title, Xlabel, Ylabel, Xmin, Xmax, Ymin, Ymax):
 def main():
     doc = '''杰森我爱你！加油你是最棒的！'''
     start_time = time.time()
-    datalist = Seg().get_data_from_mysql(50000)
-    npl = SimpleNLP(None, datalist, True)
+    datalist = Seg().get_data_from_mysql(50000, 0)
+    npl = SimpleNLP(2, None, datalist, True)
+    '''
     keyword = dict(npl.get_keyword_datalist())
     print(keyword)
     print(len(keyword))
 
-    '''
-    stopwords = set(STOPWORDS)
-    stopwords.add("不")
-    stopwords.add("都")
-    stopwords.add("还")
     font_path = root_path+'/data/simfang.ttf'
-    wordcloud = WordCloud(font_path=font_path, background_color="white", stopwords=stopwords,
-                          max_words=2000, max_font_size=100, width=1000, height=800)
+    bg_path = root_path + '/data/bg.jpg'
+    back_color = imread(bg_path)
+    image_colors = ImageColorGenerator(back_color)
+    wordcloud = WordCloud(font_path=font_path, background_color="white", mask=back_color,
+                          max_words=2000, max_font_size=100, width=1000, height=800, margin=2, random_state=48)
     wordcloud.generate_from_frequencies(keyword)
-    plt.imshow(wordcloud)
+    plt.figure()
+    plt.imshow(wordcloud.recolor(color_func=image_colors))
     plt.axis("off")
     plt.show()
-    wordcloud.to_file(root_path+'/data/pic1.png')
+    wordcloud.to_file(root_path + '/data/pic2.png')
     '''
     res = npl.sentiment_analysis_datalist()
+    #max_qty = Counter(res).most_common(1)[0][1]
+    #print(max_qty)
     print(res)
-    res = np.array(res)
-    mean = np.mean(res)
+    res2 = np.array(res)
+    mean = np.mean(res2)
     print(mean)
 
-    draw_hist(res, "sentiment", "score", "amount", 0.0, 1.0, 0, 4000)
+    #draw_hist(res, "sentiment", "score", "amount", 0.0, 1.0, 0, round(max_qty * 1.3))
+    plt.hist(res2, bins=np.arange(0, 1, 0.005))
+    plt.title("sentiment")
+    plt.xlabel("score")
+    plt.ylabel("amount")
+    plt.show()
 
     end_time = time.time()
     print(end_time - start_time)
+
+    f = open(root_path + '/data/5w-svm-10000v4', 'w')
+    f.write(str(res))
+    f.close()
 
     #npl = SimpleNLP(doc, True)
     #res = npl.seg_doc()
