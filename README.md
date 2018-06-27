@@ -1,4 +1,6 @@
 # SentimentAnalysis
+[![Build Status](https://travis-ci.com/ljw9609/SentimentAnalysis.svg?branch=master)](https://travis-ci.com/ljw9609/SentimentAnalysis)
+
 基于[新浪微博](https://m.weibo.cn)数据的情感极性分析，使用机器学习算法训练模型，使用的分类方法包括朴素贝叶斯、SVM。
 
 ## 用法
