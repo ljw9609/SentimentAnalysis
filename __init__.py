@@ -76,7 +76,7 @@ def main():
     plt.axis("off")
     plt.show()
     wordcloud.to_file(root_path + '/data/pic2.png')
-    '''
+    
     print(npl.sentiment_analysis_doc())
     res = npl.sentiment_analysis_datalist()
     # max_qty = Counter(res).most_common(1)[0][1]
@@ -98,7 +98,7 @@ def main():
     # f = open(root_path + '/data/10w-nb-30000v2', 'w')
     # f.write(str(res))
     # f.close()
-
+    '''
 
 if __name__ == '__main__':
     main()
