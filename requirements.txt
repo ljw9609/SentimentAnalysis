@@ -72,6 +72,7 @@ scipy==1.1.0
 service-identity==17.0.0
 simplegeneric==0.8.1
 six==1.11.0
+sklearn==0.0
 terminado==0.8.1
 testpath==0.3.1
 tornado==5.0.2
