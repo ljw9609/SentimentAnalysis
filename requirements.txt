@@ -79,6 +79,7 @@ traitlets==4.3.2
 Twisted==17.9.0
 w3lib==1.19.0
 wcwidth==0.1.7
+wordcloud==1.4.1
 webencodings==0.5.1
 Werkzeug==0.14.1
 widgetsnbextension==3.2.1
