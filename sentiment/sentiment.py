@@ -38,17 +38,22 @@ class Sentiment(object):
             self.svm.load_model(filename)
 
     def predict_doc_nb(self, sentence):
+        print("------ Naive Bayes Classifier is predicting ------")
         seged_sentence = self.seg.seg_from_doc(sentence)
         res, prob = self.nb.predict(seged_sentence[0])
         if res == 'pos':
             return prob
+        print("------ Naive Bayes Classifier predicting over ------")
         return 1 - prob
 
     def predict_doc_svm(self, sentence):
+        print("------ SVM Classifier predicting over ------")
         prob = self.svm.predict_sentence(sentence)
+        print("------ SVM Classifier predicting over ------")
         return prob
 
     def predict_datalist_nb(self, datalist):
+        print("------ Naive Bayes Classifier is predicting ------")
         seged_datalist = self.seg.seg_from_datalist(datalist)
 
         result = []
@@ -58,10 +63,13 @@ class Sentiment(object):
                 result.append(prob)
             else:
                 result.append(1 - prob)
+        print("------ Naive Bayes Classifier predicting over ------")
         return result
 
     def predict_datalist_svm(self, datalist):
+        print("------ SVM Classifier is predicting ------")
         result = self.svm.predict_datalist(datalist)
+        print("------ SVM Classifier predicting over ------")
         return result
 
     def predict_sentence_doc(self, sentence):
@@ -88,7 +96,6 @@ def main():
     # sentiment.train_model(seg_pos, seg_neg)
     doc = "我好开心啊！支持鹿晗！" \
           "加油加油加油"
-    print(sentiment.predict_sentence(doc))
 
 
 if __name__ == '__main__':

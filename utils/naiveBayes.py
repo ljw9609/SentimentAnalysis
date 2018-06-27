@@ -61,7 +61,10 @@ class NaiveBayes(object):
         self.counter = d['counter']
         self.corpus = d['corpus']
         self.total = d['total']
-        self.best_words = d['best_words']
+        if 'best_words' not in d:
+            self.best_words = None
+        else:
+            self.best_words = d['best_words']
         print("------ Naive Bayes Classifier model loading over ------")
 
     def predict(self, sentence):

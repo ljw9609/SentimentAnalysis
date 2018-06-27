@@ -1,28 +1,52 @@
 # SentimentAnalysis
-Sentiment Analysis based on data crawled from [Sina Weibo](https://m.weibo.cn), using Natural Language Processing.
-
-基于新浪微博数据的情感极性分析，使用机器学习算法训练模型，预计使用的方法包括朴素贝叶斯、K-NN、最大熵、SVM。
+基于[新浪微博](https://m.weibo.cn)数据的情感极性分析，使用机器学习算法训练模型，使用的分类方法包括朴素贝叶斯、SVM。
 
 ## 用法
 ````
+
+'''
+    初始化: SimpleNLP(method, doc, datalist)
+    参数说明: method - 使用的分类方法 - 数字: 1 = Naive Bayes, 2 = SVM
+             doc - 输入的文本 - 文本: None = 不使用文本
+             datalist - 输入的语句列表 - 列表: None = 不使用语句列表        
+'''
+
 doc = ```杰森我爱你！加油你是最棒的！```
-nlp = SimpleNLP(doc, True)
+datalist = ['来自东方的神秘力量', '无聊']
+nlp = SimpleNLP(1, doc, datalist)
+
 # 分词
-seg = nlp.seg_doc()
-print('分词: ' + seg)
+seg_doc = nlp.seg_doc()
+seg_datalist = nlp.seg_datalist()
+print('分词-doc: ' + seg_doc)
+print('分词-datalist: ' + seg_datalist)
+
+# 统计词频
+word_frequency = npl.get_keyword_datalist()
+print('词频: ' + word_frequency)
+
 # 情感分析
-sentiment = nlp.sentiment_analysis_doc()
-print('情感分析: ' + sentiment)
+sentiment_doc = nlp.sentiment_analysis_doc()
+sentiment_datalist = nlp.sentiment_analysis_datalist()
+print('情感分析-doc: ' + sentiment_doc)
+print('情感分析-datalist: ' + sentiment_datalist)
 
 # 结果
-分词: [['棒', '杰森', '加油', '我爱你', '最']]
-情感分析: 0.9364172150775273
+分词-doc: [['杰森', '加油', '棒', '我爱你']]
+分词-datalist: [['神秘', '东方', '力量'], ['无聊']]
+
+词频: {'神秘': 1, '东方': 1, '力量': 1, '无聊': 1}
+
+情感分析-doc: 0.9995647915879173
+情感分析-datalist: [0.9993912569032992, 0.09090909090909094]
 ````
 
 ## 实现功能
 + 分词（使用jieba分词库）
-+ 情感分析（使用朴素贝叶斯算法训练模型）
-+ 支持向量机（使用了sklearn工具）
++ 词频统计
++ 情感分析
+  + 朴素贝叶斯（使用朴素贝叶斯算法训练模型）
+  + 支持向量机（使用了sklearn工具）
 + 特征值提取（使用卡方检验算法）
 
 ## 详细说明
@@ -61,7 +85,7 @@ print('情感分析: ' + sentiment)
 对应文件: naiveBayes.py
 
 主要作用:
-+ 输入训练数据集
++ 输入训练数据集、关键词列表
 + 构建分类模型
 + 输入测试词列表，利用朴素贝叶斯算法计算各类别概率
 
