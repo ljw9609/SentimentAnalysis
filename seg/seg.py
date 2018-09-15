@@ -14,7 +14,7 @@ class Seg(object):
     # stop_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stopwords.txt')
     stop_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) + '/data/stopwords.txt'
     # db = pymysql.connect(host='localhost', user='root', password='123456', db='weiboSpider', port=3306, charset='utf8')
-    db = pymysql.connect(host='47.97.98.201', user='ljw9609', password='ljw9609', db='weibo', port=3306, charset='utf8')
+    db = pymysql.connect(host='101.132.180.255', user='root', password='uAiqwVwjJ8-i', db='viax', port=3306, charset='utf8')
 
     def __init__(self):
         self.seg_result = []
@@ -28,7 +28,7 @@ class Seg(object):
         with self.db:
             cur = self.db.cursor()
             # cur.execute("select ctt from comments where id < '%d'" % qty)
-            sql = "SELECT ctt FROM comments LIMIT %s OFFSET %s" % (qty, offset)
+            sql = "SELECT text FROM comments LIMIT %s OFFSET %s" % (qty, offset)
             cur.execute(sql)
             rows = cur.fetchall()
         reg = u"[\u4e00-\u9fa5]+"
